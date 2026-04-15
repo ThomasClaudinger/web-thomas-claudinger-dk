@@ -101,6 +101,7 @@
     section {
       padding-block: clamp(3rem, 8vw, 6rem);
       position: relative;
+      scroll-margin-top: 60px;
     }
     .section-header { margin-bottom: 2.5rem; }
     .section-header h2 { margin-top: 0.5rem; }
@@ -145,7 +146,8 @@
       transition: color 160ms var(--ease);
       white-space: nowrap;
     }
-    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--accent); }
     nav[aria-label="Primary"] { min-width: 0; }
 
     /* Mobile menu toggle button */
@@ -1279,6 +1281,34 @@
 
       lastViewportWidth = currentWidth;
     });
+
+    // Highlight active navigation link based on scroll position
+    const sections = document.querySelectorAll('section[id]');
+
+    function updateActiveLink() {
+      let activeId = null;
+
+      // Find the section currently in view (top of viewport)
+      for (const section of sections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 100) {
+          activeId = section.id;
+        }
+      }
+
+      // Update active class on nav links
+      navItems.forEach(link => {
+        link.classList.remove('active');
+        if (activeId && link.getAttribute('href') === `#${activeId}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    // Update active link on scroll and on page load
+    window.addEventListener('scroll', updateActiveLink, { passive: true });
+    window.addEventListener('hashchange', updateActiveLink);
+    updateActiveLink();
 
     // Reveal-on-scroll for elements marked with .reveal.
     // Skipped entirely when the user prefers reduced motion — the CSS already
